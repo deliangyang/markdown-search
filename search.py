@@ -11,6 +11,7 @@ import codecs
 from whoosh.qparser import MultifieldParser, QueryParser
 from whoosh.analysis import StemmingAnalyzer
 
+
 class SearchResult:
     score = 1.0
     path = None
@@ -48,7 +49,7 @@ class Search:
         if create_new:
             if os.path.exists(index_folder):
                 shutil.rmtree(index_folder)
-                print "deleted index folder: " + index_folder
+                print("deleted index folder: " + index_folder)
 
         if not os.path.exists(index_folder):
             os.mkdir(index_folder)
@@ -72,7 +73,9 @@ class Search:
             self.ix = index.open_dir(index_folder)
 
     def add_document(self, writer, file_path, config):
-        file_name = unicode(file_path.replace(".", " ").replace("/", " ").replace("\\", " ").replace("_", " ").replace("-", " "), encoding="utf-8")
+        file_name = unicode(
+            file_path.replace(".", " ").replace("/", " ").replace("\\", " ").replace("_", " ").replace("-", " "),
+            encoding="utf-8")
         # read file content
         with codecs.open(file_path, 'r', encoding='utf-8') as f:
             content = f.read()
@@ -83,8 +86,8 @@ class Search:
         parser.parse(content, config)
 
         modtime = os.path.getmtime(path)
-        print "adding to index: path: %s size:%d tags:'%s' headlines:'%s' modtime=%d" % (
-            path, len(content), parser.tags, parser.headlines, modtime)
+        print("adding to index: path: %s size:%d tags:'%s' headlines:'%s' modtime=%d" % (
+            path, len(content), parser.tags, parser.headlines, modtime))
         writer.add_document(
             path=path
             , filename=file_name
@@ -93,9 +96,8 @@ class Search:
             , content=content
             , doubleemphasiswords=parser.doubleemphasiswords
             , emphasiswords=parser.emphasiswords
-            , time = modtime
+            , time=modtime
         )
-
 
     def add_all_files(self, file_dir, config, create_new_index=False):
         if create_new_index:
@@ -110,7 +112,7 @@ class Search:
                     self.add_document(writer, path, config)
                     count += 1
         writer.commit()
-        print "Done, added %d documents to the index" % count
+        print("Done, added %d documents to the index" % count)
 
     def update_index_incremental(self, config, create_new_index=False):
         file_dir = config["MARKDOWN_FILES_DIR"]
@@ -142,7 +144,7 @@ class Search:
                 if not os.path.exists(indexed_path):
                     # This file was deleted since it was indexed
                     writer.delete_by_term('path', indexed_path)
-                    print "removed from index: %s" % indexed_path
+                    print("removed from index: %s" % indexed_path)
 
                 else:
                     # Check if this file was changed since it
@@ -165,7 +167,7 @@ class Search:
 
             writer.commit()
 
-            print "Done, updated %d documents in the index" % count
+            print("Done, updated %d documents in the index" % count)
 
     def create_search_result(self, results):
         # Allow larger fragments
@@ -218,7 +220,7 @@ class Search:
             if not query:
                 query = MultifieldParser(fields, schema=self.ix.schema).parse(query_string)
             parsed_query = "%s" % query
-            print "query: %s" % parsed_query
+            print("query: %s" % parsed_query)
             results = searcher.search(query, terms=False, scored=True, groupedby="path")
             key_terms = results.key_terms("tags", docs=100, numterms=100)
             tag_cloud = [keyword for keyword, score in key_terms]
@@ -228,6 +230,7 @@ class Search:
 
     def get_document_total_count(self):
         return self.ix.searcher().doc_count_all()
+
 
 if __name__ == "__main__":
     search = Search("search_index")

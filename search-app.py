@@ -5,9 +5,9 @@ import codecs
 import os
 from flask import Flask, request, redirect, url_for, render_template, flash
 
-
 # create our little application :)
 from search import Search
+
 
 class UpdateIndexTask(object):
     def __init__(self, rebuild_index=False):
@@ -20,6 +20,7 @@ class UpdateIndexTask(object):
         search = Search(app.config["INDEX_DIR"])
         search.update_index_incremental(app.config, create_new_index=self.rebuild_index)
 
+
 app = Flask(__name__)
 
 # Load default config and override config from an environment variable
@@ -28,9 +29,11 @@ app.config.from_pyfile("config.py")
 last_searches_file = app.config["INDEX_DIR"] + "/last_searches.txt"
 directories_file = app.config["INDEX_DIR"] + "/directories.txt"
 
+
 @app.route('/')
 def index():
     return redirect(url_for("search", query="", fields=""))
+
 
 @app.route('/search')
 def search():
@@ -45,7 +48,7 @@ def search():
         tag_cloud = search.get_tags()
         parsed_query = ""
         result = []
-        directories=get_directories()
+        directories = get_directories()
 
     else:
         parsed_query, result, tag_cloud = search.search(query.split(), fields=[fields])
@@ -53,7 +56,9 @@ def search():
 
     total = search.get_document_total_count()
 
-    return render_template('search.html', entries=result, query=query, parsed_query=parsed_query, fields=fields, tag_cloud=tag_cloud, last_searches=get_last_searches(), directories=directories, total=total)
+    return render_template('search.html', entries=result, query=query, parsed_query=parsed_query, fields=fields,
+                           tag_cloud=tag_cloud, last_searches=get_last_searches(), directories=directories, total=total)
+
 
 @app.route('/open')
 def open_file():
@@ -63,6 +68,7 @@ def open_file():
     call([app.config["EDIT_COMMAND"], path])
 
     return redirect(url_for("search", query=query, fields=fields))
+
 
 @app.route('/update_index')
 def update_index():
@@ -85,6 +91,7 @@ def get_last_searches():
         contents = []
     return contents
 
+
 def get_directories():
     if os.path.exists(directories_file):
         with codecs.open(directories_file, 'r', encoding='utf-8') as f:
@@ -93,6 +100,7 @@ def get_directories():
     else:
         directories = []
     return directories
+
 
 def store_search(query, fields):
     if os.path.exists(last_searches_file):
@@ -108,6 +116,7 @@ def store_search(query, fields):
     with codecs.open(last_searches_file, 'w', encoding='utf-8') as f:
         f.writelines(contents[:30])
 
+
 def store_directories():
     directories = []
     for root, dirnames, files in os.walk(app.config["MARKDOWN_FILES_DIR"]):
@@ -118,6 +127,7 @@ def store_directories():
     directories = sorted(set(directories))
     with codecs.open(app.config["INDEX_DIR"] + "/directories.txt", 'w', encoding='utf-8') as f:
         f.writelines(directories)
+
 
 if __name__ == '__main__':
     app.run()
