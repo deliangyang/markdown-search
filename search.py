@@ -74,13 +74,12 @@ class Search:
             self.ix = index.open_dir(index_folder)
 
     def add_document(self, writer, file_path, config):
-        file_name = unicode(
-            file_path.replace(".", " ").replace("/", " ").replace("\\", " ").replace("_", " ").replace("-", " "),
-            encoding="utf-8")
+        file_name = file_path.replace(".", " ").replace("/", " ")\
+            .replace("\\", " ").replace("_", " ").replace("-", " ")
         # read file content
         with codecs.open(file_path, 'r', encoding='utf-8') as f:
             content = f.read()
-            path = unicode(file_path, "utf-8")
+            path = file_path
 
         # parse markdown fields
         parser = MarkdownParser()
