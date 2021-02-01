@@ -1,5 +1,5 @@
 import shutil
-import HTMLParser
+from html.parser import HTMLParser
 
 from markdown_parser import MarkdownParser
 import mistune
@@ -38,7 +38,7 @@ class Search:
     ix = None
     index_folder = None
     markdown = mistune.Markdown(renderer=DontEscapeHtmlInCodeRenderer(), escape=False)
-    html_parser = HTMLParser.HTMLParser()
+    html_parser = HTMLParser()
     schema = None
 
     def __init__(self, index_folder):
