@@ -1,6 +1,7 @@
 import shutil
 from html.parser import HTMLParser
 
+from config import *
 from markdown_parser import MarkdownParser
 import mistune
 from whoosh.fields import *
@@ -233,5 +234,17 @@ class Search:
 
 
 if __name__ == "__main__":
+    config = {
+        'MARKDOWN_FILES_DIR': MARKDOWN_FILES_DIR,
+        'INDEX_DIR': INDEX_DIR,
+        'EDIT_COMMAND': EDIT_COMMAND,
+        'SHOW_PARSED_QUERY': SHOW_PARSED_QUERY,
+        'USE_TAGS': USE_TAGS,
+        'TAGS_PREFIX': TAGS_PREFIX,
+        'TAGS_TO_IGNORE': TAGS_TO_IGNORE,
+        'TAGS_REGEX': TAGS_REGEX,
+        'DEBUG': DEBUG,
+        'SECRET_KEY': SECRET_KEY,
+    }
     search = Search("search_index")
-    search.add_all_files("/Volumes/data/doc/wiki/dev")
+    search.add_all_files("/Volumes/data/doc/wiki/dev", config)
