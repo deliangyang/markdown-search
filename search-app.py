@@ -56,16 +56,21 @@ def search():
 
     total = search.get_document_total_count()
 
-    return render_template('search.html', entries=result, query=query, parsed_query=parsed_query, fields=fields,
-                           tag_cloud=tag_cloud, last_searches=get_last_searches(), directories=directories, total=total)
+    for i in result:
+        i.path = i.path.replace(app.config['MARKDOWN_FILES_DIR'], 'https://blog.sourcedev.cc')\
+            .replace('.md', '.html')
+    return render_template(
+        'search.html', entries=result, query=query, parsed_query=parsed_query, fields=fields,
+        tag_cloud=tag_cloud, last_searches=get_last_searches(), directories=directories, total=total)
 
 
 @app.route('/open')
 def open_file():
+    # return 'https://blog.sourcedev.cc/'
     path = request.args['path']
     fields = request.args.get('fields')
     query = request.args['query']
-    call([app.config["EDIT_COMMAND"], path])
+    # call([app.config["EDIT_COMMAND"], path])
 
     return redirect(url_for("search", query=query, fields=fields))
 
