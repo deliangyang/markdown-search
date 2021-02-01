@@ -5,4 +5,3 @@ Werkzeug
 Whoosh
 itsdangerous
 mistune
-wsgiref
