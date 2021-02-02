@@ -4,9 +4,11 @@ from subprocess import call
 import codecs
 import os
 from flask import Flask, request, redirect, url_for, render_template, flash
+from flask import jsonify
 
 # create our little application :)
 from search import Search
+import json
 
 
 class UpdateIndexTask(object):
@@ -57,11 +59,41 @@ def search():
     total = search.get_document_total_count()
 
     for i in result:
-        i.path = i.path.replace(app.config['MARKDOWN_FILES_DIR'], 'https://blog.sourcedev.cc')\
+        i.path = i.path.replace(app.config['MARKDOWN_FILES_DIR'], 'https://blog.sourcedev.cc') \
             .replace('.md', '.html')
     return render_template(
         'search.html', entries=result, query=query, parsed_query=parsed_query, fields=fields,
         tag_cloud=tag_cloud, last_searches=get_last_searches(), directories=directories, total=total)
+
+
+@app.route('/search_api')
+def search_api():
+    query = request.args['query']
+    fields = request.args.get('fields')
+    if fields == 'None':
+        fields = None
+
+    directories = []
+    search = Search(app.config["INDEX_DIR"])
+    if not query:
+        tag_cloud = search.get_tags()
+        parsed_query = ""
+        result = []
+        directories = get_directories()
+
+    else:
+        parsed_query, result, tag_cloud = search.search(query.split(), fields=[fields])
+        store_search(query, fields)
+
+    total = search.get_document_total_count()
+
+    data = []
+    for i in result:
+        i.path = i.path.replace(app.config['MARKDOWN_FILES_DIR'], 'https://blog.sourcedev.cc') \
+            .replace('.md', '.html')
+        data.append(i.__dict__)
+
+    return jsonify(data)
 
 
 @app.route('/open')
